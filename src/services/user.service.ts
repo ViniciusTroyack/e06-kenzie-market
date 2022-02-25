@@ -2,7 +2,7 @@ import { getRepository, getCustomRepository } from "typeorm";
 import { User } from "../entities";
 import ErrorClass from '../error/ErrorClass';
 import UsersRepositories from '../repositories/userRepository';
-// import { createCart } from "./cart.service";
+import { createCart } from "./cart.service";
 
 interface UserBody {
     name: string,
@@ -36,7 +36,7 @@ export const createUser = async (body: UserBody) => {
 
         console.log(newUser)
         
-        //createCart({user_id: user.id, finished: false })
+        createCart({user_id: user.id, finished: false })
         return user;
     } catch (e) {
         throw new ErrorClass((e as any).message, 400)
