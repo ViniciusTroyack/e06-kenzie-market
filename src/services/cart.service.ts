@@ -43,7 +43,7 @@ export const createCart = async (body: cartBody) => {
     }
 }
 
-export const getCartById = async ({ cart_id, user_id }: getCartBody) => {
+export const getCartById = async (cart_id: string, user_id: string) => {
     try {
         const cartRepository = getRepository(Buys)
         const userRepository = getRepository(User)
@@ -55,14 +55,9 @@ export const getCartById = async ({ cart_id, user_id }: getCartBody) => {
         }
 
         const cart = await cartRepository.findOne(cart_id)
-
+        
         if(!cart || cart.finished){
             throw new ErrorClass('Cart not found', 404)
-        }
-
-       
-        if (user?.isAdmin && cart?.user_id != user?.id) {
-            throw new ErrorClass('Missing admin permissions', 401)
         }
 
         return cart
@@ -89,8 +84,8 @@ export const getAllCarts = async () => {
 }
 
 
-export const addToCart = async (body: addToCartBody) => {
-    const { product_id, user_id } = body;
+export const addToCart = async (product_id: string, user_id: string) => {
+    //const { product_id, user_id } = body;
     try {
         const cartRepository = getRepository(Buys);
         const productRepository = getRepository(Product)
@@ -115,13 +110,13 @@ export const addToCart = async (body: addToCartBody) => {
 
         await cartRepository.save(cart)
 
-        return product;
+        return cart;
     } catch (e) {
         throw new ErrorClass((e as any).message, 400)
     }
 }
 
-export const deleteOfCart = async ({ user_id, product_id, cart_id }: deleteFromCartBody) => {
+export const deleteOfCart = async (user_id: string, product_id: string) => {
     try {
         const buysRepository = getRepository(Buys);
         const productRepository = getRepository(Product)
@@ -129,9 +124,9 @@ export const deleteOfCart = async ({ user_id, product_id, cart_id }: deleteFromC
 
         const user = await userRepository.findOne(user_id)
 
-        const cart = await buysRepository.findOne(cart_id)
+        const cart = await buysRepository.findOne(user_id)
         
-        if (!cart) {
+        if (!cart || cart.finished) {
             throw new ErrorClass('Cart not found', 404)
         }
 
@@ -140,7 +135,6 @@ export const deleteOfCart = async ({ user_id, product_id, cart_id }: deleteFromC
         if (!product) {
             throw new ErrorClass('Product not found', 404)
         }
-
     
         if (!user?.isAdmin && cart.user_id != user?.id) {
             throw new ErrorClass('Missing admin permissions', 401)
@@ -155,4 +149,5 @@ export const deleteOfCart = async ({ user_id, product_id, cart_id }: deleteFromC
     } catch (e) {
         throw new ErrorClass((e as any).message, 400)
     }
+
 }
